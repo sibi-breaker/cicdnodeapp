@@ -1,46 +1,21 @@
-name: CI/CD Pipeline
+name: Print Git Branch
 
 on:
   push:
     branches:
-      - main
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
 
 jobs:
-  build-test-deploy:
+  print-branch:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # Step 2: Set up Node.js environment
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16
-
-
-
-    # Step 4: Set up Minikube
-    - name: Start Minikube
-      uses: medyagh/setup-minikube@master
-
-    # Step 5: Build Docker image inside Minikube
-    - name: Build Docker image
-      run: |
-        eval $(minikube -p minikube docker-env)
-        docker build -t nodejs-app:latest .
-    # Step 6: Apply Kubernetes manifests
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
-    # Step 7: Rollback if deployment fails
-    - name: Verify Deployment and Rollback
-      run: |
-        if ! kubectl rollout status deployment/nodejs-app --timeout=160s; then
-          echo "Deployment failed! Rolling back..."
-          kubectl rollout undo deployment/nodejs-app
-          exit 1
-        fi
+      - name: Print current branch
+        run: echo "Current branch is ${{ github.ref_name }}"
