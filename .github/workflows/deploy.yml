@@ -1,4 +1,4 @@
-name: Print Git Branch and Variables
+name: Conditional Environment Variables
 
 on:
   push:
@@ -10,39 +10,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  print-branch-and-variables:
+  check-branch:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Determine branch and set variables
-        run: |
-          echo "Current branch is ${{ github.ref_name }}"
-          
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Using main environment variables"
-            echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
-            echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
-            echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
-          elif [[ "${{ github.ref_name }}" == "acceptance" ]]; then
-            echo "Using acceptance environment variables"
-            echo "ARTIFACT=${{ vars.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
-            echo "WORKSPACE=${{ vars.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
-            echo "CONNECTION_STRING=${{ vars.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
-          else
-            echo "No specific environment variables for this branch."
-          fi
-        shell: bash
+      - name: Set Environment for Main Branch
+        if: github.ref_name == 'main'
+        run: echo "VAR1=Right Branch" >> $GITHUB_ENV
 
-      - name: Echo Environment Variables
-        run: |
-          echo "Artifact: $ARTIFACT"
-          echo "Workspace: $WORKSPACE"
-          echo "Connection String: $CONNECTION_STRING"
-        shell: bash
-        env:
-          ARTIFACT: ${{ env.ARTIFACT }}
-          WORKSPACE: ${{ env.WORKSPACE }}
-          CONNECTION_STRING: ${{ env.CONNECTION_STRING }}
+      - name: Set Environment for Other Branches
+        if: github.ref_name != 'main'
+        run: echo "VAR1=Wrong Branch" >> $GITHUB_ENV
+
+      - name: Echo the Variable
+        run: echo "VAR1 is $VAR1"
