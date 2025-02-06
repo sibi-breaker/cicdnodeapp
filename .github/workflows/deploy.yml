@@ -9,10 +9,7 @@ on:
 jobs:
   setup-env:
     runs-on: ubuntu-latest
-    # Specify the environment containing your secrets
-    environment: 
-      name: secrets  # Replace with actual environment name
-      url: optional-deployment-url
+    environment: secrets  # Ensure this environment is correctly set in GitHub
 
     steps:
       - name: Checkout code
@@ -40,3 +37,4 @@ jobs:
           echo "ARTIFACT: $ARTIFACT"
           echo "WORKSPACE: $WORKSPACE"
           echo "CONNECTION_STRING: $CONNECTION_STRING"
+        shell: bash
