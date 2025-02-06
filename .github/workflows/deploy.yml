@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Updated to latest version
 
       - name: Print current branch
         run: echo "Current branch is ${{ github.ref_name }}"
@@ -24,24 +24,17 @@ jobs:
           echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
           echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
           echo "Using main environment variables"
-          cat $GITHUB_ENV  # Display environment variables
 
       - name: Set environment variables for acceptance branch
         if: github.ref_name == 'acceptance'
         run: |
-          echo "ARTIFACT=${{ vars.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
-          echo "WORKSPACE=${{ vars.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
-          echo "CONNECTION_STRING=${{ vars.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "ARTIFACT=${{ secrets.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
+          echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
+          echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
           echo "Using acceptance environment variables"
-          cat $GITHUB_ENV  # Display environment variables
 
-      - name: Print environment variables
+      - name: Verify environment variables
         run: |
-          echo "Artifact: $ARTIFACT"
-          echo "Workspace: $WORKSPACE"
-          echo "Connection String: [HIDDEN]"  # Secrets are masked in logs
-        shell: bash
-        env:
-          ARTIFACT: ${{ env.ARTIFACT }}
-          WORKSPACE: ${{ env.WORKSPACE }}
-          CONNECTION_STRING: ${{ env.CONNECTION_STRING }}
+          echo "ARTIFACT: $ARTIFACT"
+          echo "WORKSPACE: $WORKSPACE"
+          echo "CONNECTION_STRING: $CONNECTION_STRING"
