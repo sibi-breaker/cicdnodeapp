@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Print current branch
         run: echo "Current branch is ${{ github.ref_name }}"
@@ -23,8 +23,8 @@ jobs:
           echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
           echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
           echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
-          echo "${{ $GITHUB_ENV }}"
           echo "Using main environment variables"
+          cat $GITHUB_ENV  # Display environment variables
 
       - name: Set environment variables for acceptance branch
         if: github.ref_name == 'acceptance'
@@ -33,4 +33,15 @@ jobs:
           echo "WORKSPACE=${{ vars.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
           echo "CONNECTION_STRING=${{ vars.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
           echo "Using acceptance environment variables"
-           echo "${{ $GITHUB_ENV }}"
+          cat $GITHUB_ENV  # Display environment variables
+
+      - name: Print environment variables
+        run: |
+          echo "Artifact: $ARTIFACT"
+          echo "Workspace: $WORKSPACE"
+          echo "Connection String: [HIDDEN]"  # Secrets are masked in logs
+        shell: bash
+        env:
+          ARTIFACT: ${{ env.ARTIFACT }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+          CONNECTION_STRING: ${{ env.CONNECTION_STRING }}
