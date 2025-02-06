@@ -9,6 +9,10 @@ on:
 jobs:
   setup-env:
     runs-on: ubuntu-latest
+    # Specify the environment containing your secrets
+    environment: 
+      name: secrets  # Replace with actual environment name
+      url: optional-deployment-url
 
     steps:
       - name: Checkout code
@@ -29,12 +33,10 @@ jobs:
             echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
             echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
             echo "Using acceptance environment variables"
-          else
-            echo "No environment variables set for this branch"
           fi
 
       - name: Verify environment variables
         run: |
-          echo "ARTIFACT: ${ARTIFACT:-NOT_SET}"
-          echo "WORKSPACE: ${WORKSPACE:-NOT_SET}"
-          echo "CONNECTION_STRING: ${CONNECTION_STRING:-NOT_SET}"
+          echo "ARTIFACT: $ARTIFACT"
+          echo "WORKSPACE: $WORKSPACE"
+          echo "CONNECTION_STRING: $CONNECTION_STRING"
