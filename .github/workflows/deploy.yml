@@ -1,4 +1,4 @@
-name: Print Git Branch
+name: Print Git Branch and Variables
 
 on:
   push:
@@ -10,12 +10,33 @@ on:
   workflow_dispatch:
 
 jobs:
-  print-branch:
+  print-branch-and-variables:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Print current branch
-        run: echo "Current branch is ${{ github.ref_name }}"
+      - name: Determine branch and set variables
+        run: |
+          echo "Current branch is ${{ github.ref_name }}"
+          
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "Using main environment variables"
+            echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
+            echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
+            echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "acceptance" ]]; then
+            echo "Using acceptance environment variables"
+            echo "ARTIFACT=${{ vars.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
+            echo "WORKSPACE=${{ vars.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
+            echo "CONNECTION_STRING=${{ vars.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          else
+            echo "No specific environment variables for this branch."
+          fi
+
+      - name: Echo Environment Variables
+        run: |
+          echo "Artifact: $ARTIFACT"
+          echo "Workspace: $WORKSPACE"
+          echo "Connection String: $CONNECTION_STRING"
