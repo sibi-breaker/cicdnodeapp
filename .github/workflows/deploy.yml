@@ -34,9 +34,15 @@ jobs:
           else
             echo "No specific environment variables for this branch."
           fi
+        shell: bash
 
       - name: Echo Environment Variables
         run: |
           echo "Artifact: $ARTIFACT"
           echo "Workspace: $WORKSPACE"
           echo "Connection String: $CONNECTION_STRING"
+        shell: bash
+        env:
+          ARTIFACT: ${{ env.ARTIFACT }}
+          WORKSPACE: ${{ env.WORKSPACE }}
+          CONNECTION_STRING: ${{ env.CONNECTION_STRING }}
