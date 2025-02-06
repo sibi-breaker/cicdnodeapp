@@ -12,29 +12,29 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # Updated to latest version
+        uses: actions/checkout@v4
 
       - name: Print current branch
         run: echo "Current branch is ${{ github.ref_name }}"
 
-      - name: Set environment variables for main branch
-        if: github.ref_name == 'main'
+      - name: Set environment variables
         run: |
-          echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
-          echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
-          echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
-          echo "Using main environment variables"
-
-      - name: Set environment variables for acceptance branch
-        if: github.ref_name == 'acceptance'
-        run: |
-          echo "ARTIFACT=${{ secrets.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
-          echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
-          echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
-          echo "Using acceptance environment variables"
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
+            echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
+            echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
+            echo "Using main environment variables"
+          elif [[ "${{ github.ref_name }}" == "acceptance" ]]; then
+            echo "ARTIFACT=${{ secrets.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
+            echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
+            echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
+            echo "Using acceptance environment variables"
+          else
+            echo "No environment variables set for this branch"
+          fi
 
       - name: Verify environment variables
         run: |
-          echo "ARTIFACT: $ARTIFACT"
-          echo "WORKSPACE: $WORKSPACE"
-          echo "CONNECTION_STRING: $CONNECTION_STRING"
+          echo "ARTIFACT: ${ARTIFACT:-NOT_SET}"
+          echo "WORKSPACE: ${WORKSPACE:-NOT_SET}"
+          echo "CONNECTION_STRING: ${CONNECTION_STRING:-NOT_SET}"
