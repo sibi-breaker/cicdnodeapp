@@ -1,21 +1,40 @@
-name: Print Git Branch
+name: Branch-Based Environment Setup
 
 on:
   push:
     branches:
-      - '**'
-  pull_request:
-    branches:
-      - '**'
-  workflow_dispatch:
+      - main
+      - acceptance
 
 jobs:
-  print-branch:
+  setup-env:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4  # Updated to latest version
 
       - name: Print current branch
         run: echo "Current branch is ${{ github.ref_name }}"
+
+      - name: Set environment variables for main branch
+        if: github.ref_name == 'main'
+        run: |
+          echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
+          echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
+          echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "Using main environment variables"
+
+      - name: Set environment variables for acceptance branch
+        if: github.ref_name == 'acceptance'
+        run: |
+          echo "ARTIFACT=${{ secrets.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
+          echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
+          echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "Using acceptance environment variables"
+
+      - name: Verify environment variables
+        run: |
+          echo "ARTIFACT: $ARTIFACT"
+          echo "WORKSPACE: $WORKSPACE"
+          echo "CONNECTION_STRING: $CONNECTION_STRING"
