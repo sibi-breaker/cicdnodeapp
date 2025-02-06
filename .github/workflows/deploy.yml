@@ -1,59 +1,34 @@
-name: Print Git Branch and Variables
+name: Branch-Based Environment Setup
 
 on:
   push:
     branches:
-      - '**'
-  pull_request:
-    branches:
-      - '**'
-  workflow_dispatch:
+      - main
+      - acceptance
 
 jobs:
-  print-branch-and-variables:
+  setup-env:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Determine branch and set environment variables
+      - name: Print current branch
+        run: echo "Current branch is ${{ github.ref_name }}"
+
+      - name: Set environment variables for main branch
+        if: github.ref_name == 'main'
         run: |
-          echo "Current branch is ${{ github.ref_name }}"
+          echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
+          echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
+          echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "Using main environment variables"
 
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
-            echo "Using main environment variables"
-            echo "ARTIFACT=${{ secrets.MAIN_ARTIFACT }}" >> $GITHUB_ENV
-            echo "WORKSPACE=${{ secrets.MAIN_WORKSPACE }}" >> $GITHUB_ENV
-            echo "CONNECTION_STRING=${{ secrets.MAIN_CONNECTION_STRING }}" >> $GITHUB_ENV
-          elif [[ "${{ github.ref_name }}" == "acceptance" ]]; then
-            echo "Using acceptance environment variables"
-            echo "ARTIFACT=${{ secrets.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
-            echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
-            echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
-          else
-            echo "No specific environment variables for this branch."
-          fi
-        shell: bash
-
-      - name: Set VAR1 Based on Branch
+      - name: Set environment variables for acceptance branch
+        if: github.ref_name == 'acceptance'
         run: |
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            echo "VAR1=Right Branch" >> $GITHUB_ENV
-          else
-            echo "VAR1=Wrong Branch" >> $GITHUB_ENV
-          fi
-        shell: bash
-
-      - name: Echo Environment Variables
-        run: |
-          echo "Artifact: $ARTIFACT"
-          echo "Workspace: $WORKSPACE"
-          echo "Connection String: [HIDDEN]"  # Secrets are masked by GitHub
-          echo "VAR1: $VAR1"
-        shell: bash
-        env:
-          ARTIFACT: ${{ env.ARTIFACT }}
-          WORKSPACE: ${{ env.WORKSPACE }}
-          CONNECTION_STRING: ${{ env.CONNECTION_STRING }}
-          VAR1: ${{ env.VAR1 }}
+          echo "ARTIFACT=${{ secrets.ACCEPTANCE_ARTIFACT }}" >> $GITHUB_ENV
+          echo "WORKSPACE=${{ secrets.ACCEPTANCE_WORKSPACE }}" >> $GITHUB_ENV
+          echo "CONNECTION_STRING=${{ secrets.ACCEPTANCE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "Using acceptance environment variables"
