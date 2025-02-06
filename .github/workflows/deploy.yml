@@ -38,7 +38,7 @@ jobs:
 
       - name: Set VAR1 Based on Branch
         run: |
-          if [[ "${{ github.ref_name }}" == "main" ]]; then
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "VAR1=Right Branch" >> $GITHUB_ENV
           else
             echo "VAR1=Wrong Branch" >> $GITHUB_ENV
